@@ -1,0 +1,215 @@
+[
+    {
+        "id": "00faea911c2e17d1",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d7a9ea05a589f28e",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "localhost",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "5ed1155aaed18428",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "Local Influx 2",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "34345f3168db1b64",
+        "type": "mqtt out",
+        "z": "00faea911c2e17d1",
+        "name": "Smart_Desk_Publisher",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d7a9ea05a589f28e",
+        "x": 540,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "661921696d231a7c",
+        "type": "inject",
+        "z": "00faea911c2e17d1",
+        "name": "Tick-Smart Desk",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 310,
+        "y": 120,
+        "wires": [
+            [
+                "92d994a8c47c6d3e"
+            ]
+        ]
+    },
+    {
+        "id": "92d994a8c47c6d3e",
+        "type": "function",
+        "z": "00faea911c2e17d1",
+        "name": "Simulate Smart Desk",
+        "func": "// Simple Smart Desk simulator\n\n// Random helper\nfunction rand(min, max) {\n    return Math.round(Math.random() * (max - min) + min);\n}\n\n// Decide if user is present (60% chance present)\nconst present = Math.random() < 0.6;\n\n// If present, focusScore between 50–95, else 0\nlet focusScore = present ? rand(50, 95) : 0;\n\n// Light level (simulated 20–90)\nlet lightLevel = rand(20, 90);\n\n// Posture: 1 = good, 0 = bad (70% good if present)\nlet postureGood = 1;\nif (present) {\n    postureGood = Math.random() < 0.7 ? 1 : 0;\n} else {\n    postureGood = 0; // not at desk → no posture\n}\n\n// Build payload\nconst payload = {\n    deskId: \"desk01\",\n    userId: \"user01\",\n    present: present,\n    focusScore: focusScore,\n    lightLevel: lightLevel,\n    postureGood: postureGood,\n    ts: new Date().toISOString()\n};\n\n// Set MQTT topic here\nmsg.topic = \"desk/desk01/telemetry\";\nmsg.payload = JSON.stringify(payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 120,
+        "wires": [
+            [
+                "34345f3168db1b64"
+            ]
+        ]
+    },
+    {
+        "id": "afd6ced74296e452",
+        "type": "mqtt in",
+        "z": "00faea911c2e17d1",
+        "name": "Smart Desk Telemetry IN",
+        "topic": "desk/desk01/telemetry",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d7a9ea05a589f28e",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 330,
+        "y": 400,
+        "wires": [
+            [
+                "a17d74df0fecba88"
+            ]
+        ]
+    },
+    {
+        "id": "18f7357593e54d51",
+        "type": "debug",
+        "z": "00faea911c2e17d1",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "a17d74df0fecba88",
+        "type": "json",
+        "z": "00faea911c2e17d1",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 470,
+        "y": 480,
+        "wires": [
+            [
+                "8c58fa0660fa325d"
+            ]
+        ]
+    },
+    {
+        "id": "5a872dc6776bb546",
+        "type": "influxdb out",
+        "z": "00faea911c2e17d1",
+        "influxdb": "5ed1155aaed18428",
+        "name": "Local Influx 2",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "iot-org",
+        "bucket": "smartdesk",
+        "x": 710,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "8c58fa0660fa325d",
+        "type": "function",
+        "z": "00faea911c2e17d1",
+        "name": "Prepare Influx point",
+        "func": "// Get the payload from the message\nlet p = msg.payload;\n\n// If payload is a JSON string, try to parse it\nif (typeof p === \"string\") {\n    try {\n        p = JSON.parse(p);\n    } catch (e) {\n        node.warn(\"Payload is a string but not valid JSON: \" + e.message);\n        return null;\n    }\n}\n\n// We now expect p to be an object\nif (!p || typeof p !== \"object\") {\n    node.warn(\"No valid payload object received\");\n    return null;\n}\n\n// Basic validation\nif (!p.deskId || !p.userId) {\n    node.warn(\"Missing deskId or userId\");\n    return null;\n}\n\n// Convert booleans to numbers for Influx\nconst presentVal = p.present ? 1 : 0;\n\n// ---- Influx mapping ----\nmsg.measurement = \"desk_focus\";\n\nmsg.tags = {\n    deskId: p.deskId,\n    userId: p.userId\n};\n\n// IMPORTANT: fields must go in msg.payload\nmsg.payload = {\n    present: presentVal,\n    focusScore: Number(p.focusScore) || 0,\n    lightLevel: Number(p.lightLevel) || 0,\n    postureGood: Number(p.postureGood) || 0\n};\n\n// Timestamp for Influx\nmsg.timestamp = p.ts ? new Date(p.ts) : new Date();\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "\n",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 560,
+        "wires": [
+            [
+                "5a872dc6776bb546",
+                "18f7357593e54d51"
+            ]
+        ]
+    }
+]
