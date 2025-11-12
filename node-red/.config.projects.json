@@ -1,0 +1,8 @@
+{
+    "projects": {
+        "MDT913_SmartDesk": {
+            "credentialSecret": false
+        }
+    },
+    "activeProject": "MDT913_SmartDesk"
+}
